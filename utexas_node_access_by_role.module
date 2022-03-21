@@ -1,0 +1,89 @@
+<?php
+
+/**
+ * @file
+ * Contains Pharmacy Intranet Access .module file.
+ */
+
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Access\AccessResult;
+use Drupal\node\NodeInterface;
+
+use Drupal\utexas_node_access_by_role\EntityTypeInfo;
+use Drupal\utexas_node_access_by_role\Form\NodeFormAlterations;
+
+/**
+ * Implements hook_node_access().
+ */
+function utexas_node_access_by_role_node_access(NodeInterface $node, $op, AccountInterface $account) {
+  // This module provides an "allow list" approach to controlling access:
+  // 1. If the operation is not 'view', return "neutral" (defer to others).
+  // 2. If the user has the 'bypass' permission, return "neutral".
+  // 3. If the node has role settings, check if the user has a role that allows
+  // access. If so, return "allowed". If not, return "forbidden."
+  // 4. All checks have been made. Return "neutral" per Drupal guidelines.
+  switch ($op) {
+    case 'view':
+      // For users with any role that has 'bypass utexas node access by role',
+      // this hook should stay "neutral".
+      if ($account->hasPermission('bypass utexas node access by role')) {
+        return AccessResult::neutral();
+      }
+      // Check if the node has role-based access restrictions.
+      if ($node->hasField('utexas_node_access_by_role') && !$node->get('utexas_node_access_by_role')->isEmpty()) {
+        foreach ($node->get('utexas_node_access_by_role')->getValue() as $key => $value) {
+          // If the user has any role that is allowed to view the node, grant
+          // access.
+          if (in_array($value['target_id'], $account->getRoles())) {
+            return AccessResult::allowed();
+          }
+        }
+        // The user does not have a role that is allowed access to this node.
+        return AccessResult::forbidden();
+      }
+      break;
+  }
+  return AccessResult::neutral();
+}
+
+/**
+ * Implements hook_entity_base_field_info().
+ */
+function utexas_node_access_by_role_entity_base_field_info(EntityTypeInterface $entity_type) {
+  // Register a new base field for all entity types.
+  return \Drupal::service('class_resolver')
+    ->getInstanceFromDefinition(EntityTypeInfo::class)
+    ->entityBaseFieldInfo($entity_type);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function utexas_node_access_by_role_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  // Modify node forms in Drupal\utexas_node_access_by_role\Form.
+  \Drupal::service('class_resolver')
+    ->getInstanceFromDefinition(NodeFormAlterations::class)
+    ->nodeFormAlter($form, $form_state, $form_id);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function utexas_node_access_by_role_form_node_type_edit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  // Modify node type *edit* forms in Drupal\utexas_node_access_by_role\Form.
+  \Drupal::service('class_resolver')
+    ->getInstanceFromDefinition(NodeFormAlterations::class)
+    ->nodeTypeFormAlter($form, $form_state, $form_id);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function utexas_node_access_by_role_form_node_type_add_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  // Modify node type *add* forms in Drupal\utexas_node_access_by_role\Form.
+  \Drupal::service('class_resolver')
+    ->getInstanceFromDefinition(NodeFormAlterations::class)
+    ->nodeTypeFormAlter($form, $form_state, $form_id);
+}

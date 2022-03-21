@@ -1,0 +1,6 @@
+manage utexas node access by role settings:
+  title: 'Manage Node Access by Role'
+  description: 'Permission to set node access by role on nodes and node types'
+bypass utexas node access by role:
+  title: 'Bypass Node Access by Role'
+  description: 'Roles with this permission will not be affected by node access role settings'

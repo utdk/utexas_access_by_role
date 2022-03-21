@@ -1,0 +1,5 @@
+name: UTexas Node Access by Role
+description: 'Control access to individual nodes based on user roles.'
+package: 'UTexas'
+type: module
+core_version_requirement: '^8.9 || ^9 || ^10'
