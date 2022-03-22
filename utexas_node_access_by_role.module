@@ -33,8 +33,6 @@ function utexas_node_access_by_role_node_access(NodeInterface $node, $op, Accoun
       }
       // Check if the node has role-based access restrictions.
       if ($node->hasField('utexas_node_access_by_role') && !$node->get('utexas_node_access_by_role')->isEmpty()) {
-        $config = \Drupal::config('utexas_node_access_by_role.config');
-        $selectable_roles = $config->get('selectable_roles');
         foreach (array_values($node->get('utexas_node_access_by_role')->getValue()) as $value) {
           // If the user has any role that is allowed to view the node, grant
           // access.
