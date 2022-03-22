@@ -116,6 +116,10 @@ class Redirect403toLoginSubscriber extends HttpExceptionSubscriberBase {
         }
       }
     }
+    else {
+      // This is not a node, so it's not applicable to this redirect.
+      return;
+    }
     $moduleHandler = \Drupal::service('module_handler');
     $redirectPath = '/user/login';
     if ($moduleHandler->moduleExists('simplesamlphp_auth')) {
