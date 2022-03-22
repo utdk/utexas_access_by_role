@@ -71,7 +71,7 @@ class ConfigurationForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->configFactory->get('utexas_node_access_by_role.config');
-    $form['intro']['#markup'] = $this->t('<h3>Introduction</h3><p><em>Node access by role</em> allows content editors to set which site roles can access individual pages. Limit which roles that can be selected by choosing specific roles below.</p><p></p>');
+    $form['intro']['#markup'] = $this->t('<h3>Introduction</h3><p><em>Node access by role</em> allows content editors to set which site roles can access individual pages. Limit which roles can be selected by choosing specific roles below.</p><p></p>');
 
     /** @var \Drupal\user\RoleStorage $role_storage */
     $role_storage = $this->entityTypeManager->getStorage('user_role');
@@ -108,15 +108,32 @@ class ConfigurationForm extends ConfigFormBase {
    * Extended submit callback.
    */
   public function submitConfig(&$form, FormStateInterface $form_state) {
-    $form_settings = [
-      'selectable_roles',
-    ];
     $config = $this->configFactory->getEditable('utexas_node_access_by_role.config');
-    foreach ($form_settings as $setting) {
-      $value = $form_state->getValue($setting);
-      $config->set($setting, $value);
-    }
+    $selectable_roles = $form_state->getValue('selectable_roles');
+    $config->set('selectable_roles', $selectable_roles);
     $config->save();
+
+    // Load all nodes that have current role-based access and *remove* any roles
+    // that are no longer selectable.
+    $selectable = [];
+    foreach (array_values($selectable_roles) as $value) {
+      if ($value !== 0) {
+        $selectable[] = $value;
+      }
+    }
+    if (!empty($selectable)) {
+      /** @var \Drupal\user\RoleStorage $role_storage */
+      $role_storage = $this->entityTypeManager->getStorage('user_role');
+      $system_roles = $role_storage->loadMultiple();
+      foreach ($system_roles as $role) {
+        if (!in_array($role->id(), $selectable)) {
+          $nodes = \Drupal::entityTypeManager()->getStorage('node')->loadByProperties(['utexas_node_access_by_role' => $role->id()]);
+          foreach ($nodes as $node) {
+            $node->get('utexas_node_access_by_role')->getValue();
+          }
+        }
+      }
+    }
   }
 
 }

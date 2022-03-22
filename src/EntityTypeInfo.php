@@ -125,7 +125,7 @@ class EntityTypeInfo implements ContainerInjectionInterface {
 
     $fields['utexas_node_access_by_role'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel($this->t('Set which roles can access this page'))
-      ->setDescription($this->t('Only selected roles will be able to view this page. Leave blank to defer to permissions for all content. Roles that are grayed out have permission to bypass this setting.'))
+      ->setDescription($this->t('Only selected roles will be able to view this page. Leave blank to defer to the site\'s general permissions.'))
       ->setSetting('target_type', 'user_role')
       ->setRevisionable(TRUE)
       ->setCardinality(-1)

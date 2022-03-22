@@ -4,3 +4,6 @@ services:
     arguments: ['@config.factory', '@current_user', '@path.matcher', '@event_dispatcher', '@messenger', '@redirect.destination']
     tags:
       - { name: event_subscriber }
+  menu.default_tree_manipulators:
+    class: Drupal\utexas_node_access_by_role\MenuLinkTreeManipulator
+    arguments: ['@access_manager', '@current_user', '@entity_type.manager', '@config.manager', '@entity.repository']
