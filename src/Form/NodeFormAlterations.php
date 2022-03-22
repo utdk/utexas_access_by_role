@@ -2,6 +2,7 @@
 
 namespace Drupal\utexas_node_access_by_role\Form;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
@@ -22,6 +23,13 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class NodeFormAlterations implements ContainerInjectionInterface {
 
   use StringTranslationTrait;
+
+  /**
+   * The Config Factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
 
   /**
    * The entity type manager.
@@ -76,19 +84,23 @@ class NodeFormAlterations implements ContainerInjectionInterface {
    *   Current user.
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
    *   Entity field manager.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The configuration object factory.
    */
   public function __construct(
     TranslationInterface $translation,
     EntityTypeManagerInterface $entity_type_manager,
     EntityTypeBundleInfoInterface $bundle_info,
     AccountInterface $current_user,
-    EntityFieldManagerInterface $entity_field_manager
+    EntityFieldManagerInterface $entity_field_manager,
+    ConfigFactoryInterface $config_factory
   ) {
     $this->stringTranslation = $translation;
     $this->entityTypeManager = $entity_type_manager;
     $this->bundleInfo = $bundle_info;
     $this->currentUser = $current_user;
     $this->entityFieldManager = $entity_field_manager;
+    $this->configFactory = $config_factory;
   }
 
   /**
@@ -100,7 +112,8 @@ class NodeFormAlterations implements ContainerInjectionInterface {
       $container->get('entity_type.manager'),
       $container->get('entity_type.bundle.info'),
       $container->get('current_user'),
-      $container->get('entity_field.manager')
+      $container->get('entity_field.manager'),
+      $container->get('config.factory'),
     );
   }
 
@@ -131,6 +144,7 @@ class NodeFormAlterations implements ContainerInjectionInterface {
       $form['utexas_node_access_by_role']['#prefix'] = 'Your user account does not have permission to change access by role.';
       $form['utexas_node_access_by_role']['#disabled'] = TRUE;
     }
+    $form['utexas_node_access_by_role']['widget']['#options'] = $this->getSelectableRoles();
     // Display to the user which roles are set to bypass this setting, and
     // remove them from options.
     $bypassing_roles = $this->getBypassingRoles();
@@ -141,7 +155,7 @@ class NodeFormAlterations implements ContainerInjectionInterface {
       $form['utexas_node_access_by_role']['#suffix'] = 'The following role(s) are configured to bypass this restriction: ' . implode(', ', array_values($bypassing_roles)) . '.';
     }
     // Temporary logic to populate defaults on node add form.
-    // @todo: figure out how this should happen automatically.
+    // @todo Figure out how this should happen automatically.
     $operation = $form_state->getFormObject()->getOperation();
     if ($operation == 'default') {
       $bundle = $form_state->getBuildInfo()['callback_object']->getEntity()->bundle();
@@ -182,7 +196,7 @@ class NodeFormAlterations implements ContainerInjectionInterface {
       '#type' => 'checkboxes',
       '#title' => $this->t('Set the default roles which should be able to access nodes of this type.'),
       '#group' => 'utexas_node_access_by_role_wrapper',
-      '#options' => $access_options,
+      '#options' => $this->getSelectableRoles(),
       '#default_value' => $default_roles,
       '#description' => $this->t('These defaults will show when creating a new node of this type. Each node can modify these defaults. Subsequent changes to the defaults here will not take effect on modified nodes.'),
     ];
@@ -199,6 +213,37 @@ class NodeFormAlterations implements ContainerInjectionInterface {
     }
     // Set new field definition default value for the node type on submit.
     $form['actions']['submit']['#submit'][] = [$this, 'bundleFormSubmit'];
+  }
+
+  /**
+   * Provide a list of roles that are allowed to be selected.
+   *
+   * @return array
+   *   A key value pair of role ID and role label.
+   */
+  public function getSelectableRoles() {
+    $access_options = [];
+    $selectable = [];
+    // Check for sitewide configuration that constrains selectable roles.
+    $config = $this->configFactory->get('utexas_node_access_by_role.config');
+    $selectable_roles = $config->get('selectable_roles') ?? [];
+    /** @var \Drupal\user\RoleStorage $role_storage */
+    $role_storage = $this->entityTypeManager->getStorage('user_role');
+    /** @var \Drupal\user\RoleInterface[] $roles */
+    $roles = $role_storage->loadMultiple();
+    foreach (array_values($selectable_roles) as $value) {
+      if (is_string($value)) {
+        $selectable[] = $value;
+      }
+    }
+    // Don't make the 'anonymous' role available -- it's not a valid use case.
+    unset($roles['anonymous']);
+    foreach ($roles as $key => $role) {
+      if (in_array($key, $selectable, TRUE) || empty($selectable)) {
+        $access_options[$key] = $role->get('label');
+      }
+    }
+    return $access_options;
   }
 
   /**

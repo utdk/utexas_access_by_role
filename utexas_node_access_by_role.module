@@ -22,7 +22,7 @@ function utexas_node_access_by_role_node_access(NodeInterface $node, $op, Accoun
   // 1. If the operation is not 'view', return "neutral" (defer to others).
   // 2. If the user has the 'bypass' permission, return "neutral".
   // 3. If the node has role settings, check if the user has a role that allows
-  // access. If so, return "allowed". If not, return "forbidden."
+  // access. If so, return "neutral". If not, return "forbidden."
   // 4. All checks have been made. Return "neutral" per Drupal guidelines.
   switch ($op) {
     case 'view':
@@ -33,11 +33,13 @@ function utexas_node_access_by_role_node_access(NodeInterface $node, $op, Accoun
       }
       // Check if the node has role-based access restrictions.
       if ($node->hasField('utexas_node_access_by_role') && !$node->get('utexas_node_access_by_role')->isEmpty()) {
-        foreach ($node->get('utexas_node_access_by_role')->getValue() as $key => $value) {
+        $config = \Drupal::config('utexas_node_access_by_role.config');
+        $selectable_roles = $config->get('selectable_roles');
+        foreach (array_values($node->get('utexas_node_access_by_role')->getValue()) as $value) {
           // If the user has any role that is allowed to view the node, grant
           // access.
           if (in_array($value['target_id'], $account->getRoles())) {
-            return AccessResult::allowed();
+            return AccessResult::neutral();
           }
         }
         // The user does not have a role that is allowed access to this node.

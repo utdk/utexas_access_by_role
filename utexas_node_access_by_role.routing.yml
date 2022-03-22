@@ -1,0 +1,7 @@
+utexas_node_access_by_role.configuration:
+  path: '/admin/config/people/utexas_node_access_by_role'
+  defaults:
+    _form: '\Drupal\utexas_node_access_by_role\Form\ConfigurationForm'
+    _title: 'Node Access by Role'
+  requirements:
+    _permission: 'manage utexas node access by role settings'

@@ -1,0 +1,4 @@
+utexas_node_access_by_role.configuration:
+  route_name: utexas_node_access_by_role.configuration
+  title: 'Node Access by Role'
+  base_route: utexas_node_access_by_role.configuration
