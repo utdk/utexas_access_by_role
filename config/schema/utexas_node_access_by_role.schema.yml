@@ -1,9 +1,0 @@
-utexas_node_access_by_role.config:
-  type: config_entity
-  label: 'Node Access by Role sitewide configuration'
-  mapping:
-    selectable_roles:
-      type: sequence
-      label: 'Role'
-      sequence:
-        type: string

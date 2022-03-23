@@ -1,5 +1,0 @@
-utexas_node_access_by_role.configuration:
-  title: 'Node access by role'
-  description: 'Set which roles are available to limit access on nodes'
-  route_name: utexas_node_access_by_role.configuration
-  parent: user.admin_index
