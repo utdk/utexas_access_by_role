@@ -1,5 +1,8 @@
-manage utexas node access by role settings:
+manage utexas node access by role:
   title: 'Manage Node Access by Role'
+  description: 'Set global selections and enable restrictions on node types'
+set utexas node access by role:
+  title: 'Set node access by role'
   description: 'Permission to set node access by role on nodes and node types'
 bypass utexas node access by role:
   title: 'Bypass Node Access by Role'
