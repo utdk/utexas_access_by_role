@@ -36,7 +36,7 @@ function utexas_node_access_by_role_node_access_records(NodeInterface $node) {
   }
   // Check if the node has enabled role-based restrictions.
   if ($node->hasField('utexas_node_access_by_role_enable')) {
-    $enabled = $node->get('utexas_node_access_by_role_enable')->getValue();
+    $enabled = (bool) $node->get('utexas_node_access_by_role_enable')->getString();
     if (!$enabled) {
       // This node has no role restrictions. Explicitly mark it as being allowed within the
       // utexas_node_access_by_role realm (other realms can still control).

@@ -190,7 +190,7 @@ class NodeFormAlterations implements ContainerInjectionInterface {
    */
   public function nodeFormSubmit(&$form, FormStateInterface $form_state) {
     $enabled = $form_state->getValue('utexas_node_access_by_role_enable');
-    if ($enabled) {
+    if ($enabled['value']) {
       $roles = $form_state->getValue('utexas_node_access_by_role_roles');
       $allowed = [];
       $role_storage = $this->entityTypeManager->getStorage('user_role');
