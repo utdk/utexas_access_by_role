@@ -182,7 +182,13 @@ class NodeFormAlterations implements ContainerInjectionInterface {
   }
 
   public function nodeFormValidate(&$form, FormStateInterface $form_state) {
-    // @todo require roles to be selected if 'enable' is checked.
+    $enabled = $form_state->getValue('utexas_node_access_by_role_enable');
+    if ($enabled['value']) {
+      $roles = $form_state->getValue('utexas_node_access_by_role_roles');
+      if (empty($roles)) {
+        $form_state->setErrorByName('utexas_node_access_by_role_roles', $this->t('Select at least one role to restrict, or disable restrictions'));
+      }
+    }
   }
 
   /**
