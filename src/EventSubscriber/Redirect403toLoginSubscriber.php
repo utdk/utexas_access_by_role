@@ -103,7 +103,6 @@ class Redirect403toLoginSubscriber extends HttpExceptionSubscriberBase {
    *   The Event to process.
    */
   public function on403(ExceptionEvent $event) {
-    $config = $this->configFactory->get('utexas_node_access_by_role.config');
     $request = $event->getRequest();
     $currentPath = $request->getPathInfo();
     if (!$this->currentUser->isAnonymous()) {
@@ -111,7 +110,11 @@ class Redirect403toLoginSubscriber extends HttpExceptionSubscriberBase {
     }
     if ($node = $request->attributes->get('node')) {
       if ($node instanceof NodeInterface) {
-        if (!$node->hasField('utexas_node_access_by_role') || $node->get('utexas_node_access_by_role')->isEmpty()) {
+        if (!$node->hasField('utexas_node_access_by_role_enable')) {
+          return;
+        }
+        $enabled = (bool) $node->get('utexas_node_access_by_role_enable')->getString();
+        if (!$enabled) {
           return;
         }
       }
