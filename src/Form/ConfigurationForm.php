@@ -137,6 +137,7 @@ class ConfigurationForm extends ConfigFormBase {
       }
       drupal_flush_all_caches();
     }
+    node_access_rebuild();
   }
 
 }
