@@ -110,7 +110,12 @@ class NodeFormAlterations implements ContainerInjectionInterface {
         $role = $role_storage->load($value);
         $allowed[] = $role->get('label');
       }
-      $this->messenger->addStatus($this->t('This page is currently only visible to the following roles: ' . implode(', ', $allowed) . '.'));
+      if (!empty($allowed)) {
+        $form['utexas_node_access_by_role_help'] = [
+          '#markup' => $this->t('<div class="messages messages--status">This page is currently only visible to the following roles: ' . implode(', ', $allowed) . '.</div>'),
+          '#weight' => -999,
+        ];
+      }
     }
     $form['page_access_options'] = [
       '#type' => 'details',
@@ -195,7 +200,7 @@ class NodeFormAlterations implements ContainerInjectionInterface {
     if ($enabled['value']) {
       $roles = $form_state->getValue('utexas_node_access_by_role_roles');
       if (empty($roles)) {
-        $form_state->setErrorByName('utexas_node_access_by_role_roles', $this->t('Select at least one role to restrict, or disable restrictions'));
+        $form_state->setErrorByName('utexas_node_access_by_role_roles', $this->t('Select at least one role to restrict, or uncheck the "Restrict access by role" checkbox.'));
       }
     }
   }
@@ -213,7 +218,9 @@ class NodeFormAlterations implements ContainerInjectionInterface {
         $role = $role_storage->load($value['target_id']);
         $allowed[] = $role->get('label');
       }
-      $this->messenger->addStatus($this->t('This page is currently only visible to the following roles: ' . implode(', ', $allowed) . '.'));
+      if (!empty($allowed)) {
+        $this->messenger->addStatus($this->t('This page is currently only visible to the following roles: ' . implode(', ', $allowed) . '.'));
+      }
     }
   }
 
