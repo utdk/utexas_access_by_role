@@ -251,7 +251,7 @@ class NodeFormAlterations implements ContainerInjectionInterface {
     /** @var \Drupal\user\RoleInterface[] $roles */
     $roles = $role_storage->loadMultiple();
     foreach (array_values($selectable_roles) as $value) {
-      if ($value != 0) {
+      if ($value !== "0") {
         $selectable[] = $value;
       }
     }
