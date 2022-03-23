@@ -109,17 +109,26 @@ class NodeFormAlterations implements ContainerInjectionInterface {
       '#group' => 'advanced',
       '#weight' => 100,
     ];
-    $form['utexas_node_access_by_role']['#group'] = 'page_access_options';
+    $form['utexas_node_access_by_role_roles']['#group'] = 'page_access_options';
     $form['utexas_node_access_by_role_enable']['#group'] = 'page_access_options';
     if (!$this->currentUser->hasPermission('set utexas node access by role')) {
       $form['utexas_node_access_by_role']['#prefix'] = 'Your user account does not have permission to change access by role.';
-      $form['utexas_node_access_by_role']['#access'] = TRUE;
+      $form['utexas_node_access_by_role_roles']['#disabled'] = TRUE;
+      $form['utexas_node_access_by_role_enable']['#disabled'] = TRUE;
     }
-    $form['utexas_node_access_by_role']['widget']['#options'] = \Drupal::service('utexas_node_access_by_role.helper')->getSelectableRoles();
+    $node_type = $form_state->getBuildInfo()['callback_object']->getEntity();
+    $config = $this->configFactory->getEditable('utexas_node_access_by_role.node_type');
+    $enabled = (bool) $config->get($node_type->bundle());
+    if (!$enabled) {
+      $form['utexas_node_access_by_role_enable']['#disabled'] = TRUE;
+      $form['utexas_node_access_by_role_roles']['#disabled'] = TRUE;
+      $form['utexas_node_access_by_role_enable']['#prefix'] = $this->t('This must be enabled on the node type configuration form.');
+    }
+    $form['utexas_node_access_by_role_roles']['widget']['#options'] = \Drupal::service('utexas_node_access_by_role.helper')->getSelectableRoles();
 
-    $form['utexas_node_access_by_role']['#states'] = [
+    $form['utexas_node_access_by_role_roles']['#states'] = [
       'disabled' => array(
-        ':input[name="utexas_node_access_by_role_enable"]' => array('checked' => FALSE),
+        ':input[name="utexas_node_access_by_role_enable[value]"]' => array('checked' => FALSE),
       ),
     ];
     $form['#validate'][] = [$this, 'nodeFormValidate'];
@@ -144,11 +153,15 @@ class NodeFormAlterations implements ContainerInjectionInterface {
       '#title' => $this->t('Page access'),
       '#group' => 'additional_settings',
     ];
+    $node_type = $form_state->getBuildInfo()['callback_object']->getEntity();
+    $config = $this->configFactory->getEditable('utexas_node_access_by_role.node_type');
+    $enabled = (bool) $config->get($node_type->id());
     $form['utexas_node_access_by_role_wrapper']['utexas_node_access_by_role_enable'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Enable controlling access to nodes of this type by role'),
+      '#title' => $this->t('Enable node access restrictions by role.'),
+      '#description' => $this->t('Users must have the <em>Set node access by role</em> permission to be able to restrict node access to specific roles.'),
       '#group' => 'utexas_node_access_by_role_wrapper',
-      '#default_value' => FALSE,
+      '#default_value' => $enabled,
     ];
     if (!$this->currentUser->hasPermission('manage utexas node access by role')) {
       $form['utexas_node_access_by_role_wrapper']['utexas_node_access_by_role']['#access'] = FALSE;
@@ -163,8 +176,9 @@ class NodeFormAlterations implements ContainerInjectionInterface {
   public function bundleFormSubmit(&$form, FormStateInterface $form_state) {
     $status = $form_state->getValue('utexas_node_access_by_role_enable');
     $config = $this->configFactory->getEditable('utexas_node_access_by_role.node_type');
-    $config->set('page', $status);
-    // Save enabled state.
+    $node_type = $form_state->getBuildInfo()['callback_object']->getEntity();
+    $config->set($node_type->id(), (bool) $status);
+    $config->save();
   }
 
   public function nodeFormValidate(&$form, FormStateInterface $form_state) {
@@ -184,7 +198,7 @@ class NodeFormAlterations implements ContainerInjectionInterface {
         $role = $role_storage->load($value['target_id']);
         $allowed[] = $role->get('label');
       }
-      $this->messenger->addStatus($this->t('This node is currently restricted to the following roles: ' . explode(', ', $allowed)));
+      $this->messenger->addStatus($this->t('This node is currently restricted to the following roles: ' . implode(', ', $allowed) . '.'));
     }
   }
 

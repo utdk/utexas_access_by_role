@@ -3,5 +3,5 @@ utexas_node_access_by_role.node_type.*:
   label: 'Node access by Role node type settings'
   mapping:
     enabled:
-      type: integer
+      type: boolean
       label: 'Enabled'

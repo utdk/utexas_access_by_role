@@ -6,8 +6,6 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Drupal\Core\StringTranslation\TranslationInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -16,8 +14,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @internal
  */
 class NodeAccessHelper implements ContainerInjectionInterface {
-
-  use StringTranslationTrait;
 
   /**
    * The Config Factory.
@@ -44,8 +40,6 @@ class NodeAccessHelper implements ContainerInjectionInterface {
   /**
    * EntityTypeInfo constructor.
    *
-   * @param \Drupal\Core\StringTranslation\TranslationInterface $translation
-   *   The translation service. for form alters.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   Entity type manager.
    * @param \Drupal\Core\Session\AccountInterface $current_user
@@ -54,12 +48,10 @@ class NodeAccessHelper implements ContainerInjectionInterface {
    *   The configuration object factory.
    */
   public function __construct(
-    TranslationInterface $translation,
     EntityTypeManagerInterface $entity_type_manager,
     AccountInterface $current_user,
     ConfigFactoryInterface $config_factory
   ) {
-    $this->stringTranslation = $translation;
     $this->entityTypeManager = $entity_type_manager;
     $this->currentUser = $current_user;
     $this->configFactory = $config_factory;
@@ -92,8 +84,8 @@ class NodeAccessHelper implements ContainerInjectionInterface {
     $bypassing_roles = $this->getBypassingRoles();
     // Don't make the 'anonymous' role available -- it's not a valid use case.
     unset($roles['anonymous']);
-    // @todo handle authenticated.
-    //unset($roles['authenticated']);
+    // Don't make the 'authenticated' role available -- it's not a valid use case.
+    unset($roles['authenticated']);
     foreach ($roles as $key => $role) {
       if (!in_array($key, array_keys($bypassing_roles))) {
         $access_options[$key] = $role->get('label');

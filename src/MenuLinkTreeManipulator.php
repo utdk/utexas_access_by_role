@@ -51,21 +51,14 @@ class MenuLinkTreeManipulator extends DefaultMenuLinkTreeManipulators {
     }
     if ($url->getRouteName() === 'entity.node.canonical') {
       $parameters = $url->getRouteParameters();
-      $query = \Drupal::database()->select('node__utexas_node_access_by_role', 'n');
-      $query->fields('n', ['entity_id']);
-      $query->condition('n.entity_id', $parameters['node']);
+      $query = \Drupal::database()->select('node_field_data', 'n');
+      $query->fields('n', ['nid']);
+      $query->condition('n.nid', $parameters['node']);
+      $query->condition('n.utexas_node_access_by_role_enable', 1);
+      $query->condition('n.status', '1');
       $result = $query->countQuery()->execute()->fetchField();
       if ($result > 0) {
-        // The node referenced in this menu link has per role restrictions.
-        // Check if it is published.
-        $query = \Drupal::database()->select('node_field_data', 'n');
-        $query->fields('n', ['nid', 'status']);
-        $query->condition('n.nid', $parameters['node']);
-        $query->condition('n.status', '1');
-        $result = $query->countQuery()->execute()->fetchField();
-        if ($result > 0) {
-          return TRUE;
-        }
+        return TRUE;
       }
     }
     return FALSE;

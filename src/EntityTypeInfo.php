@@ -122,7 +122,7 @@ class EntityTypeInfo implements ContainerInjectionInterface {
     if ($entity_type->id() !== 'node') {
       return [];
     }
-    $fields['utexas_node_access_by_role_enable'] = BaseFieldDefinition::create('entity_reference')
+    $fields['utexas_node_access_by_role_enable'] = BaseFieldDefinition::create('boolean')
       ->setLabel(t('Restrict access by role'))
       ->setRevisionable(TRUE)
       ->setTranslatable(TRUE)
