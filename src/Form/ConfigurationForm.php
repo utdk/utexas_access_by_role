@@ -127,12 +127,15 @@ class ConfigurationForm extends ConfigFormBase {
       $system_roles = $role_storage->loadMultiple();
       foreach ($system_roles as $role) {
         if (!in_array($role->id(), $selectable)) {
-          $nodes = \Drupal::entityTypeManager()->getStorage('node')->loadByProperties(['utexas_node_access_by_role' => $role->id()]);
-          foreach ($nodes as $node) {
-            $node->get('utexas_node_access_by_role')->getValue();
-          }
+          \Drupal::database()->delete('node__utexas_node_access_by_role')
+          ->condition('utexas_node_access_by_role_target_id', $role->id())
+          ->execute();
+          \Drupal::database()->delete('node_revision__utexas_node_access_by_role')
+          ->condition('utexas_node_access_by_role_target_id', $role->id())
+          ->execute();
         }
       }
+      drupal_flush_all_caches();
     }
   }
 

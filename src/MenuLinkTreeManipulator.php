@@ -30,29 +30,45 @@ class MenuLinkTreeManipulator extends DefaultMenuLinkTreeManipulators {
    */
   protected function menuLinkCheckAccess(MenuLinkInterface $instance) {
     $access_result = parent::menuLinkCheckAccess($instance);
-    $url = $instance->getUrlObject();
-    if ($url && $url->isRouted()) {
-      if ($url->getRouteName() === 'entity.node.canonical') {
-        $parameters = $url->getRouteParameters();
-        $query = \Drupal::database()->select('node__utexas_node_access_by_role', 'n');
-        $query->fields('n', ['entity_id']);
-        $query->condition('n.entity_id', $parameters['node']);
+    if ($this->isRoleRestrictedNode($instance->getUrlObject())) {
+      $access_result = AccessResult::allowed();
+    }
+    return $access_result->cachePerPermissions();
+  }
+
+  /**
+   * Check if the URL has a current role-based access restriction.
+   *
+   * @param \Drupal\Core\Url $url
+   *   A Drupal URL object.
+   *
+   * @return bool
+   *   Whether or not it has a current role-based access restriction.
+   */
+  public function isRoleRestrictedNode($url) {
+    if (!$url || !$url->isRouted()) {
+      return FALSE;
+    }
+    if ($url->getRouteName() === 'entity.node.canonical') {
+      $parameters = $url->getRouteParameters();
+      $query = \Drupal::database()->select('node__utexas_node_access_by_role', 'n');
+      $query->fields('n', ['entity_id']);
+      $query->condition('n.entity_id', $parameters['node']);
+      $result = $query->countQuery()->execute()->fetchField();
+      if ($result > 0) {
+        // The node referenced in this menu link has per role restrictions.
+        // Check if it is published.
+        $query = \Drupal::database()->select('node_field_data', 'n');
+        $query->fields('n', ['nid', 'status']);
+        $query->condition('n.nid', $parameters['node']);
+        $query->condition('n.status', '1');
         $result = $query->countQuery()->execute()->fetchField();
         if ($result > 0) {
-          // The node referenced in this menu link has per role restrictions.
-          // Check if it is published.
-          $query = \Drupal::database()->select('node_field_data', 'n');
-          $query->fields('n', ['nid', 'status']);
-          $query->condition('n.nid', $parameters['node']);
-          $query->condition('n.status', '1');
-          $result = $query->countQuery()->execute()->fetchField();
-          if ($result > 0) {
-            $access_result = AccessResult::allowed();
-          }
+          return TRUE;
         }
       }
     }
-    return $access_result->cachePerPermissions();
+    return FALSE;
   }
 
 }

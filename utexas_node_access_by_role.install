@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * @file
+ * Node Access by Role module installation file.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function utexas_node_access_by_role_install() {
+  // Set module weight to after Utexas profile,
+  // which also alters menu links.
+  module_set_weight('utexas_node_access_by_role', 1001);
+}

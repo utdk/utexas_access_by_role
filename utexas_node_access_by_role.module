@@ -87,3 +87,27 @@ function utexas_node_access_by_role_form_node_type_add_form_alter(&$form, FormSt
     ->getInstanceFromDefinition(NodeFormAlterations::class)
     ->nodeTypeFormAlter($form, $form_state, $form_id);
 }
+
+
+/**
+ * Implements hook_link_alter().
+ *
+ * See utexas.profile::utexas_link_alter.
+ */
+function utexas_node_access_by_role_link_alter(&$variables) {
+  /** @var \Drupal\utexas_node_access_by_role\MenuLinkTreeManipulator $menu_link_manipulator */
+  $menu_link_manipulator = \Drupal::service('menu.default_tree_manipulators');
+
+  if ($menu_link_manipulator->isRoleRestrictedNode($variables['url'])) {
+    if (isset($variables['options']['attributes']['class']) && !is_array($variables['options']['attributes']['class'])) {
+      // Avoid casting to a class as a string,
+      // such as in redirect/-/blob/8.x-1.x/redirect.module#L375.
+      $variables['options']['attributes']['class'] = explode(',', $variables['options']['attributes']['class']);
+    }
+    // Remove the 'access-protected' class.
+    $variables['options']['attributes']['class'] = array_diff($variables['options']['attributes']['class'], ['access-protected']);
+    // Add the lock icon.
+    $variables['options']['attributes']['class'][] = 'ut-cta-link--lock';
+    $variables['options']['attributes']['class'][] = 'ut-link';
+  }
+}
