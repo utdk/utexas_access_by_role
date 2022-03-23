@@ -56,7 +56,6 @@ function utexas_node_access_by_role_node_access_records(NodeInterface $node) {
   if ($node->hasField('utexas_node_access_by_role_roles') && !$node->get('utexas_node_access_by_role_roles')->isEmpty()) {
     // Create a node-ID-specific list of roles granted access to this account.
     foreach (array_values($node->get('utexas_node_access_by_role_roles')->getValue()) as $value) {
-      \Drupal::logger('mymodule')->notice(serialize($value));
       if (in_array($value['target_id'], array_keys($bypassing_roles))) {
         // This array check is to prevent duplicate entries.
         continue;
@@ -96,6 +95,16 @@ function utexas_node_access_by_role_node_grants(AccountInterface $account, $op) 
     return $grants;
   }
 }
+
+// function utexas_node_access_by_role_node_view(array &$build, \Drupal\Core\Entity\EntityInterface $entity, \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display, $view_mode) {
+//   $node = $entity;
+//   if ($node->hasField('utexas_node_access_by_role_enable')) {
+//     $enabled = (bool) $node->get('utexas_node_access_by_role_enable')->getString();
+//     if ($enabled) {
+//       \Drupal::messenger()->addWarning("This page has restricted access.");
+//     }
+//   }
+// }
 
 /**
  * Implements hook_entity_base_field_info().

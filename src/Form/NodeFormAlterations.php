@@ -103,6 +103,15 @@ class NodeFormAlterations implements ContainerInjectionInterface {
    * @see hook_form_alter()
    */
   public function nodeFormAlter(array &$form, FormStateInterface $form_state, $form_id) {
+    if ($form['utexas_node_access_by_role_enable']['widget']['value']['#default_value']) {
+      $role_storage = $this->entityTypeManager->getStorage('user_role');
+      $roles = $form['utexas_node_access_by_role_roles']['widget']['#default_value'];
+      foreach ($roles as $value) {
+        $role = $role_storage->load($value);
+        $allowed[] = $role->get('label');
+      }
+      $this->messenger->addStatus($this->t('This page is currently only visible to the following roles: ' . implode(', ', $allowed) . '.'));
+    }
     $form['page_access_options'] = [
       '#type' => 'details',
       '#title' => $this->t('Page access'),
@@ -204,7 +213,7 @@ class NodeFormAlterations implements ContainerInjectionInterface {
         $role = $role_storage->load($value['target_id']);
         $allowed[] = $role->get('label');
       }
-      $this->messenger->addStatus($this->t('This node is currently restricted to the following roles: ' . implode(', ', $allowed) . '.'));
+      $this->messenger->addStatus($this->t('This page is currently only visible to the following roles: ' . implode(', ', $allowed) . '.'));
     }
   }
 
