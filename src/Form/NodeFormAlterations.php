@@ -130,15 +130,12 @@ class NodeFormAlterations implements ContainerInjectionInterface {
    * @see hook_form_alter()
    */
   public function nodeFormAlter(array &$form, FormStateInterface $form_state, $form_id) {
-    // Add fieldset for "Page display options" if not already present.
-    if (!isset($form['page_access_options'])) {
-      $form['page_access_options'] = [
-        '#type' => 'details',
-        '#title' => $this->t('Page access'),
-        '#group' => 'advanced',
-        '#weight' => 100,
-      ];
-    }
+    $form['page_access_options'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Page access'),
+      '#group' => 'advanced',
+      '#weight' => 100,
+    ];
     $form['utexas_node_access_by_role']['#group'] = 'page_access_options';
     if (!$this->currentUser->hasPermission('manage utexas node access by role settings')) {
       $form['utexas_node_access_by_role']['#prefix'] = 'Your user account does not have permission to change access by role.';
@@ -154,6 +151,7 @@ class NodeFormAlterations implements ContainerInjectionInterface {
       }
       $form['utexas_node_access_by_role']['#suffix'] = 'The following role(s) are configured to bypass this restriction: ' . implode(', ', array_values($bypassing_roles)) . '.';
     }
+
     // Temporary logic to populate defaults on node add form.
     // @todo Figure out how this should happen automatically.
     $operation = $form_state->getFormObject()->getOperation();
@@ -164,6 +162,27 @@ class NodeFormAlterations implements ContainerInjectionInterface {
       $defaults = $node_type_current_defaults[0] ?? [];
       $form['utexas_node_access_by_role']['widget']['#default_value'] = $defaults;
     }
+
+    // Provide a more explicit UX of opting in to restricting content.
+    $current_defaults = $form['utexas_node_access_by_role']['widget']['#default_value'];
+    $has_selections = FALSE;
+    foreach (array_values($current_defaults) as $value) {
+      if ($value !== 0) {
+        $has_selections = TRUE;
+        break;
+      }
+    }
+    $form['page_access_options']['utexas_node_access_by_role_enabler'] = [
+      '#type' => 'checkbox',
+      '#title' => 'Restrict access to this node',
+      '#default_value' => $has_selections,
+    ];
+    $form['utexas_node_access_by_role']['#states'] = [
+      'disabled' => array(
+        ':input[name="utexas_node_access_by_role_enabler"]' => array('checked' => FALSE),
+      ),
+    ];
+    $form['actions']['submit']['#submit'][] = [$this, 'nodeFormSubmit'];
   }
 
   /**
@@ -320,6 +339,17 @@ class NodeFormAlterations implements ContainerInjectionInterface {
     $field_definition->getConfig($node_type->id())->setDefaultValue($form_value)->save();
 
     $this->entityFieldManager->clearCachedFieldDefinitions();
+  }
+
+  /**
+   * Submit handler for the node form.
+   */
+  public function nodeFormSubmit(&$form, FormStateInterface $form_state) {
+    $field_name = 'utexas_node_access_by_role_enabler';
+    $enabled = $form_state->getValue($field_name);
+    if ($enabled == 0) {
+      $form_state->setValue('utexas_node_access_by_role', []);
+    }
   }
 
 }
