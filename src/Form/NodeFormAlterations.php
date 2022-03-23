@@ -138,6 +138,7 @@ class NodeFormAlterations implements ContainerInjectionInterface {
       $form['utexas_node_access_by_role_roles']['#disabled'] = TRUE;
       $form['utexas_node_access_by_role_enable']['#prefix'] = $this->t('This must be enabled on the node type configuration form.');
     }
+    $form['utexas_node_access_by_role_enable']['#suffix'] = t('At least one role must be selected to restrict content.');
     $form['utexas_node_access_by_role_roles']['widget']['#options'] = \Drupal::service('utexas_node_access_by_role.helper')->getSelectableRoles();
 
     $form['utexas_node_access_by_role_roles']['#states'] = [
