@@ -122,10 +122,23 @@ class EntityTypeInfo implements ContainerInjectionInterface {
     if ($entity_type->id() !== 'node') {
       return [];
     }
-
-    $fields['utexas_node_access_by_role'] = BaseFieldDefinition::create('entity_reference')
+    $fields['utexas_node_access_by_role_enable'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('Restrict access by role'))
+      ->setRevisionable(TRUE)
+      ->setTranslatable(TRUE)
+      ->setDisplayOptions('view', [
+        'region' => 'hidden',
+      ])
+      ->setDisplayConfigurable('view', TRUE)
+      ->setDisplayOptions('form', [
+        'type' => 'boolean_checkbox',
+        'weight' => 9,
+      ])
+      ->setDefaultValue(FALSE)
+      ->setDisplayConfigurable('form', TRUE);
+    $fields['utexas_node_access_by_role_roles'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel($this->t('Set which roles can access this page'))
-      ->setDescription($this->t('Only selected roles will be able to view this page. Leave blank to defer to the site\'s general permissions.'))
+      ->setDescription($this->t('Only selected roles will be able to view this page.'))
       ->setSetting('target_type', 'user_role')
       ->setRevisionable(TRUE)
       ->setCardinality(-1)

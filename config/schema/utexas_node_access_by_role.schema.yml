@@ -1,0 +1,7 @@
+utexas_node_access_by_role.node_type.*:
+  type: config_entity
+  label: 'Node access by Role node type settings'
+  mapping:
+    enabled:
+      type: integer
+      label: 'Enabled'

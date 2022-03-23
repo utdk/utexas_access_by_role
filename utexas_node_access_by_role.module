@@ -2,15 +2,13 @@
 
 /**
  * @file
- * Contains Pharmacy Intranet Access .module file.
+ * Node Access by Role.
  */
 
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\Core\Access\AccessResult;
 use Drupal\node\NodeInterface;
-use Drupal\user\Entity\Role;
 use Drupal\user\RoleInterface;
 use Drupal\Core\Entity\EntityInterface;
 
@@ -22,20 +20,10 @@ use Drupal\utexas_node_access_by_role\Form\NodeFormAlterations;
  * Implements hook_node_access_records().
  */
 function utexas_node_access_by_role_node_access_records(NodeInterface $node) {
-
-  // Here is a good introduction to this hook:
-  // https://www.droptica.com/blog/drupal-node-grants/ .
-
   // 1. Get any roles that currently have permission to bypass the node-based restriction.
-  $roles = Role::loadMultiple();
-  $bypassing_roles = [];
-  foreach ($roles as $role) {
-    if ($role->hasPermission('bypass utexas node access by role')) {
-      $bypassers[] = $role->id();
-    }
-  }
-  if (!empty($bypassers)) {
-    foreach ($bypassers as $bypasser) {
+  $bypassing_roles = \Drupal::service('utexas_node_access_by_role.helper')->getBypassingRoles();
+  if (!empty(array_keys($bypassing_roles))) {
+    foreach (array_keys($bypassing_roles) as $bypasser) {
       $grants[] = [
         'realm' => 'utexas_node_access_by_role',
         'gid' => crc32($bypasser),
@@ -46,39 +34,43 @@ function utexas_node_access_by_role_node_access_records(NodeInterface $node) {
       ];
     }
   }
-
-  // 1. Retrieve node-specific role restrictions based on the base field.
-  // 2. Set equivalent grants based on an integer-version of the role ID.
-  if ($node->hasField('utexas_node_access_by_role') && !$node->get('utexas_node_access_by_role')->isEmpty()
-  ) {
-    foreach (array_values($node->get('utexas_node_access_by_role')->getValue()) as $value) {
-      // Create a node-ID-specific list of roles granted access to this account.
-      // This array check is to prevent duplicate entries.
-      if (!in_array($value['target_id'], $bypassers)) {
-        $grants[] = [
-          'realm' => 'utexas_node_access_by_role',
-          'gid' => crc32($value['target_id']),
-          'grant_view' => 1,
-          'grant_update' => 0,
-          'grant_delete' => 0,
-          'langcode' => 'en',
-        ];
-      }
+  // Check if the node has enabled role-based restrictions.
+  if ($node->hasField('utexas_node_access_by_role_enable')) {
+    $enabled = $node->get('utexas_node_access_by_role_enable')->getValue();
+    if (!$enabled) {
+      // This node has no role restrictions. Explicitly mark it as being allowed within the
+      // utexas_node_access_by_role realm (other realms can still control).
+      $grants[] = [
+        'realm' => 'utexas_node_access_by_role',
+        'gid' => 0,
+        'grant_view' => 1,
+        'grant_update' => 0,
+        'grant_delete' => 0,
+        'langcode' => 'en',
+      ];
+      return $grants;
     }
   }
-  else {
-    // This node has no role restrictions. Explicitly mark it as being allowed within the
-    // utexas_node_access_by_role realm (other realms can still control).
-    $grants[] = [
-      'realm' => 'utexas_node_access_by_role',
-      'gid' => 0,
-      'grant_view' => 1,
-      'grant_update' => 0,
-      'grant_delete' => 0,
-      'langcode' => 'en',
-    ];
+
+  // 1. Retrieve node-specific role restrictions based on the base field.
+  if ($node->hasField('utexas_node_access_by_role_roles') && !$node->get('utexas_node_access_by_role_roles')->isEmpty()) {
+    // Create a node-ID-specific list of roles granted access to this account.
+    foreach (array_values($node->get('utexas_node_access_by_role_roles')->getValue()) as $value) {
+      if (!in_array($value['target_id'], array_keys($bypassing_roles))) {
+        // This array check is to prevent duplicate entries.
+        continue;
+      }
+      // Set grants based on an integer-equivalent of the role ID.
+      $grants[] = [
+        'realm' => 'utexas_node_access_by_role',
+        'gid' => crc32($value['target_id']),
+        'grant_view' => 1,
+        'grant_update' => 0,
+        'grant_delete' => 0,
+        'langcode' => 'en',
+      ];
+    }
   }
-  // @todo When a new role is granted bypassing permissions, the content permissions will need to be rebuilt.
   return $grants;
 }
 
@@ -88,13 +80,14 @@ function utexas_node_access_by_role_node_access_records(NodeInterface $node) {
 function utexas_node_access_by_role_node_grants(AccountInterface $account, $op) {
   // Send a list of the current user's roles to the system so they can be checked against
   // the node's allowed roles in hook_node_records(), above.
-  $roles = $account->getRoles();
-  foreach ($roles as $role) {
+  foreach ($account->getRoles() as $role) {
     // Create a unique, constant integer representation of the machine name of the role.
     $rids[] = crc32($role);
   }
+  // @todo if the anonymous role has access to view published pages...
   // Add anonymous user role.
   $rids[] = 0;
+
   if ($op == 'view') {
     // This is simply a list of the *current* user's roles.
     // Checking happens via hook_node_records.
@@ -143,7 +136,6 @@ function utexas_node_access_by_role_form_node_type_add_form_alter(&$form, FormSt
     ->nodeTypeFormAlter($form, $form_state, $form_id);
 }
 
-
 /**
  * Implements hook_link_alter().
  *
@@ -187,13 +179,3 @@ function utexas_node_access_by_role_entity_insert(EntityInterface $entity) {
   }
 }
 
-/**
- * Implements hook_entity_delete().
- */
-function utexas_node_access_by_role_entity_delete(EntityInterface $entity) {
-  if ($entity instanceof RoleInterface) {
-    if ($entity instanceof RoleInterface) {
-      node_access_rebuild();
-    }
-  }
-}

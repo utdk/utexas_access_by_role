@@ -1,4 +1,7 @@
 services:
+  utexas_node_access_by_role.helper:
+    class: Drupal\utexas_node_access_by_role\Service\NodeAccessHelper
+    arguments: ['@config.factory', '@current_user']
   utexas_node_access_by_role.subscriber:
     class: Drupal\utexas_node_access_by_role\EventSubscriber\Redirect403toLoginSubscriber
     arguments: ['@config.factory', '@current_user', '@path.matcher', '@event_dispatcher', '@messenger', '@redirect.destination']
