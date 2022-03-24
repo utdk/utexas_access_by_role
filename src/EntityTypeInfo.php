@@ -138,7 +138,7 @@ class EntityTypeInfo implements ContainerInjectionInterface {
       ->setDisplayConfigurable('form', TRUE);
     $fields['utexas_node_access_by_role_roles'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel($this->t('Set which roles can access this page'))
-      ->setDescription($this->t('Only selected roles will be able to view this page.'))
+      ->setDescription($this->t('Only selected roles will be able to view this page. At least one role must be selected to restrict content.'))
       ->setSetting('target_type', 'user_role')
       ->setRevisionable(TRUE)
       ->setCardinality(-1)
