@@ -169,9 +169,7 @@ class Redirect403toLoginSubscriber extends HttpExceptionSubscriberBase {
       // updated when necessary.
       $cacheMetadata = new CacheableMetadata();
       $cacheMetadata->addCacheTags(['4xx-response']);
-      $cacheMetadata->addCacheableDependency($config);
       $response->addCacheableDependency($cacheMetadata);
-
       $event->setResponse($response);
     }
   }
