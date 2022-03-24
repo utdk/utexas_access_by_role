@@ -11,6 +11,8 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\utexas_node_access_by_role\Service\NodeAccessHelper;
+use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 
 /**
  * Alter the node form and node type forms.
@@ -20,6 +22,15 @@ use Drupal\Core\Messenger\MessengerInterface;
 class NodeFormAlterations implements ContainerInjectionInterface {
 
   use StringTranslationTrait;
+  use DependencySerializationTrait;
+
+  /**
+   * The Config Factory.
+   *
+   * @var \Drupal\utexas_node_access_by_role\Service\NodeAccessHelper
+   */
+  protected $nodeAccessHelper;
+
 
   /**
    * The Config Factory.
@@ -68,13 +79,15 @@ class NodeFormAlterations implements ContainerInjectionInterface {
     EntityTypeManagerInterface $entity_type_manager,
     AccountInterface $current_user,
     ConfigFactoryInterface $config_factory,
-    MessengerInterface $messenger
+    MessengerInterface $messenger,
+    NodeAccessHelper $nodeAccessHelper
   ) {
     $this->stringTranslation = $translation;
     $this->entityTypeManager = $entity_type_manager;
     $this->currentUser = $current_user;
     $this->configFactory = $config_factory;
     $this->messenger = $messenger;
+    $this->nodeAccessHelper = $nodeAccessHelper;
   }
 
   /**
@@ -87,6 +100,7 @@ class NodeFormAlterations implements ContainerInjectionInterface {
       $container->get('current_user'),
       $container->get('config.factory'),
       $container->get('messenger'),
+      $container->get('utexas_node_access_by_role.helper')
     );
   }
 
@@ -139,8 +153,7 @@ class NodeFormAlterations implements ContainerInjectionInterface {
       $form['utexas_node_access_by_role_enable']['#prefix'] = $this->t('This must be enabled on the node type configuration form.');
     }
     $form['utexas_node_access_by_role_enable']['#suffix'] = t('At least one role must be selected to restrict content.');
-    $form['utexas_node_access_by_role_roles']['widget']['#options'] = \Drupal::service('utexas_node_access_by_role.helper')->getSelectableRoles();
-
+    $form['utexas_node_access_by_role_roles']['widget']['#options'] = $this->nodeAccessHelper->getSelectableRoles();
     $form['utexas_node_access_by_role_roles']['#states'] = [
       'disabled' => array(
         ':input[name="utexas_node_access_by_role_enable[value]"]' => array('checked' => FALSE),
