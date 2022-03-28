@@ -123,7 +123,7 @@ class EntityTypeInfo implements ContainerInjectionInterface {
       return [];
     }
     $fields['utexas_node_access_by_role_enable'] = BaseFieldDefinition::create('boolean')
-      ->setLabel(t('Restrict access by role'))
+      ->setLabel(t('Protect access by role'))
       ->setRevisionable(TRUE)
       ->setTranslatable(TRUE)
       ->setDisplayOptions('view', [

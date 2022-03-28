@@ -185,8 +185,8 @@ class NodeFormAlterations implements ContainerInjectionInterface {
     $enabled = (bool) $config->get($node_type->id());
     $form['utexas_node_access_by_role_wrapper']['utexas_node_access_by_role_enable'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Enable node access restrictions by role.'),
-      '#description' => $this->t('Users must have the <em>Set node access by role</em> permission to be able to restrict node access to specific roles.'),
+      '#title' => $this->t('Enable node access protection by role.'),
+      '#description' => $this->t('Users must have the <em>Set node access by role</em> permission to be able to protect node access for specific roles.'),
       '#group' => 'utexas_node_access_by_role_wrapper',
       '#default_value' => $enabled,
     ];
@@ -213,7 +213,7 @@ class NodeFormAlterations implements ContainerInjectionInterface {
     if ($enabled['value']) {
       $roles = $form_state->getValue('utexas_node_access_by_role_roles');
       if (empty($roles)) {
-        $form_state->setErrorByName('utexas_node_access_by_role_roles', $this->t('Select at least one role to restrict, or uncheck the "Restrict access by role" checkbox.'));
+        $form_state->setErrorByName('utexas_node_access_by_role_roles', $this->t('Select at least one role-based protection, or uncheck the "Protect access by role" checkbox.'));
       }
     }
   }
