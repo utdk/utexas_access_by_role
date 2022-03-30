@@ -13,3 +13,22 @@ function utexas_node_access_by_role_install() {
   // which also alters menu links.
   module_set_weight('utexas_node_access_by_role', 1001);
 }
+
+/**
+ * Implements hook_uninstall().
+ */
+function utexas_node_access_by_role_uninstall() {
+  $database = \Drupal::database();
+  $nids = $database->select('node_field_data', 'nfd')
+    ->condition('nfd.utexas_node_access_by_role_enable', '1')
+    ->fields('nfd', ['nid'])
+    ->execute()
+    ->fetchCol();
+  $storage_handler = \Drupal::entityTypeManager()->getStorage("node");
+  $nodes = $storage_handler->loadMultiple($nids);
+  foreach ($nodes as $node) {
+    $node->setUnpublished();
+    $node->save();
+  }
+  \Drupal::messenger()->addMessage("All nodes with role-based restrictions have been unpublished as a precaution.");
+}
