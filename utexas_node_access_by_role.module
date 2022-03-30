@@ -15,7 +15,6 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\utexas_node_access_by_role\EntityTypeInfo;
 use Drupal\utexas_node_access_by_role\Form\NodeFormAlterations;
 
-
 /**
  * Implements hook_node_access_records().
  */
@@ -32,8 +31,8 @@ function utexas_node_access_by_role_node_access_records(NodeInterface $node) {
       return $grants;
     }
   }
-  // The node does have by-role restrictions. First, explicitly grant access to 
-  // roles that hvae the 'bypass node access by role' permission.
+  // The node does have by-role restrictions. First, explicitly grant access to
+  // roles that have the 'bypass node access by role' permission.
   $bypassing_roles = \Drupal::service('utexas_node_access_by_role.helper')->getBypassingRoles();
   if (!empty(array_keys($bypassing_roles))) {
     foreach (array_keys($bypassing_roles) as $bypasser) {
@@ -73,10 +72,10 @@ function utexas_node_access_by_role_node_access_records(NodeInterface $node) {
  * Implements hook_node_grants().
  */
 function utexas_node_access_by_role_node_grants(AccountInterface $account, $op) {
-  // Send a list of the current user's roles to the system so they can be compared to
-  // the node's allowed roles in hook_node_records(), above.
+  // Send a list of the current user's roles to the system so they can be
+  // compared to the node's allowed roles in hook_node_records(), above.
   foreach ($account->getRoles() as $role) {
-    // Create a unique, constant integer representing the machine name of the role.
+    // Create a unique, constant integer representing the role machine name.
     $rids[] = crc32($role);
   }
   if ($op == 'view') {
@@ -172,4 +171,3 @@ function utexas_node_access_by_role_entity_insert(EntityInterface $entity) {
     }
   }
 }
-
