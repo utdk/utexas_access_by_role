@@ -2,27 +2,24 @@ langcode: en
 status: true
 dependencies:
   config:
-    - core.entity_view_mode.media.media_library
+    - core.entity_view_mode.media.utexas_medium
     - field.field.media.utexas_restricted_image.field_utexas_restricted_image
     - field.field.media.utexas_restricted_image.field_utexas_restricted_roles
     - image.style.medium
     - media.type.utexas_restricted_image
   module:
     - image
-id: media.utexas_restricted_image.media_library
+    - layout_builder
+third_party_settings:
+  layout_builder:
+    enabled: false
+    allow_custom: false
+id: media.utexas_restricted_image.utexas_medium
 targetEntityType: media
 bundle: utexas_restricted_image
-mode: media_library
+mode: utexas_medium
 content:
-  field_utexas_restricted_roles:
-    type: entity_reference_label
-    label: above
-    settings:
-      link: false
-    third_party_settings: {  }
-    weight: 1
-    region: content
-  thumbnail:
+  field_utexas_restricted_image:
     type: image
     label: hidden
     settings:
@@ -33,7 +30,8 @@ content:
     region: content
 hidden:
   created: true
-  field_utexas_restricted_image: true
+  field_utexas_restricted_roles: true
   name: true
   search_api_excerpt: true
+  thumbnail: true
   uid: true
