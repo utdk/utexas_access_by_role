@@ -10,8 +10,3 @@ services:
   menu.default_tree_manipulators:
     class: Drupal\utexas_node_access_by_role\MenuLinkTreeManipulator
     arguments: ['@access_manager', '@current_user', '@entity_type.manager', '@config.manager', '@entity.repository']
-  utexas_node_access_disallows_user_with_no_roles_event_subscriber:
-    class: Drupal\utexas_node_access_by_role\EventSubscriber\DisallowUserWithNoRolesSubscriber
-    arguments: ['@current_user', '@logger.factory', '@current_route_match']
-    tags:
-      - {name: event_subscriber}

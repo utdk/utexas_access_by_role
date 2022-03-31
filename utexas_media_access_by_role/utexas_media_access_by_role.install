@@ -1,0 +1,31 @@
+<?php
+
+/**
+ * @file
+ * Media Access by Role module installation file.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function utexas_media_access_by_role_uninstall() {
+  $storage_handler = \Drupal::entityTypeManager()->getStorage("media");
+  $images = \Drupal::entityQuery('media')
+    ->condition('bundle', 'utexas_restricted_image')
+    ->execute();
+
+  $medias = $storage_handler->loadMultiple($images);
+  foreach ($medias as $media) {
+    $media->setUnpublished();
+    $media->save();
+  }
+  $documents = \Drupal::entityQuery('media')
+  ->condition('bundle', 'utexas_restricted_document')
+  ->execute();
+  $medias = $storage_handler->loadMultiple($documents);
+  foreach ($medias as $media) {
+    $media->setUnpublished();
+    $media->save();
+  }
+  \Drupal::messenger()->addMessage("All media with role-based restrictions have been unpublished as a precaution.");
+}

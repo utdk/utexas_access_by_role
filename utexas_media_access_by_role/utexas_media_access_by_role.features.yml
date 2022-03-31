@@ -1,0 +1,15 @@
+bundle: utexas
+required:
+  - core.entity_form_display.media.utexas_restricted_image.default
+  - core.entity_form_display.media.utexas_restricted_image.media_library
+  - core.entity_form_display.media.utexas_restricted_document.default
+  - core.entity_form_display.media.utexas_restricted_document.media_library
+  - core.entity_view_display.media.utexas_restricted_image.default
+  - core.entity_view_display.media.utexas_restricted_image.media_library
+  - core.entity_view_display.media.utexas_restricted_document.default
+  - core.entity_view_display.media.utexas_restricted_document.media_library
+  - field.field.media.utexas_restricted_image.field_utexas_restricted_roles
+  - field.storage.media.field_utexas_restricted_image
+  - field.storage.media.field_utexas_restricted_roles
+  - media.type.utexas_restricted_image
+  - media.type.utexas_restricted_document

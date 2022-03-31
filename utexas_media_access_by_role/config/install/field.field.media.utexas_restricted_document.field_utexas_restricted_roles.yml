@@ -1,0 +1,22 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.media.field_utexas_restricted_roles
+    - media.type.utexas_restricted_document
+id: media.utexas_restricted_document.field_utexas_restricted_roles
+field_name: field_utexas_restricted_roles
+entity_type: media
+bundle: utexas_restricted_document
+label: 'Roles with access'
+description: 'Only selected roles will be able to view this document. At least one role must be selected to restrict content.'
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:user_role'
+  handler_settings:
+    target_bundles: null
+    auto_create: false
+field_type: entity_reference

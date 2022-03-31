@@ -1,0 +1,16 @@
+name: 'UTexas Media Access by Role'
+description: 'Control access to individual media based on user roles.'
+package: UTexas
+type: module
+core_version_requirement: '^8.9 || ^9'
+dependencies:
+  - 'drupal:field'
+  - 'drupal:file'
+  - 'drupal:image'
+  - 'drupal:media'
+  - 'drupal:media_library'
+  - 'drupal:node'
+  - 'drupal:path'
+  - 'drupal:user'
+  - 'drupal:views'
+version: '1.0'

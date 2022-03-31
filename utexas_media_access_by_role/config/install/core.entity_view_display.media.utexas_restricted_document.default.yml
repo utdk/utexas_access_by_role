@@ -1,0 +1,28 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.media.utexas_restricted_document.field_utexas_restricted_file
+    - field.field.media.utexas_restricted_document.field_utexas_restricted_roles
+    - media.type.utexas_restricted_document
+  module:
+    - file
+id: media.utexas_restricted_document.default
+targetEntityType: media
+bundle: utexas_restricted_document
+mode: default
+content:
+  field_utexas_restricted_file:
+    type: file_default
+    label: visually_hidden
+    settings:
+      use_description_as_link_text: true
+    third_party_settings: {  }
+    weight: 0
+    region: content
+hidden:
+  created: true
+  field_utexas_restricted_roles: true
+  name: true
+  thumbnail: true
+  uid: true

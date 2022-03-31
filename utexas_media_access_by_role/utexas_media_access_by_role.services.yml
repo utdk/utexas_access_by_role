@@ -1,0 +1,4 @@
+services:
+  utexas_media_access_by_role.helper:
+    class: Drupal\utexas_media_access_by_role\Service\MediaAccessHelper
+    arguments: ['@entity_type.manager', '@current_user', '@config.factory']

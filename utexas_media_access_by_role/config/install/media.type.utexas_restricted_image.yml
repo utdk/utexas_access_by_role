@@ -1,0 +1,13 @@
+langcode: en
+status: true
+dependencies: {  }
+id: utexas_restricted_image
+label: 'Restricted Image'
+description: 'Images that can only be accessed by specified roles.'
+source: image
+queue_thumbnail_downloads: false
+new_revision: true
+source_configuration:
+  source_field: field_utexas_restricted_image
+field_map:
+  name: name

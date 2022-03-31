@@ -1,13 +1,13 @@
 {
-  "name": "utexas/utexas_node_access_by_role",
+  "name": "utexas/utexas_access_by_role",
   "type": "drupal-custom-module",
-  "description": "Control access to individual Drupal nodes based on user roles.",
+  "description": "Control access to Drupal content based on user roles.",
   "keywords": ["Drupal"],
   "license": ["GPL-2.0-or-later"],
-  "homepage": "https://github.austin.utexas.edu/eis1-wcs/utexas_node_access_by_role",
+  "homepage": "https://github.austin.utexas.edu/eis1-wcs/utexas_access_by_role",
   "minimum-stability": "dev",
   "support": {
-    "issues": "https://github.austin.utexas.edu/eis1-wcs/utexas_node_access_by_role/issues",
-    "source": "https://github.austin.utexas.edu/eis1-wcs/utexas_node_access_by_role"
+    "issues": "https://github.austin.utexas.edu/eis1-wcs/utexas_access_by_role/issues",
+    "source": "https://github.austin.utexas.edu/eis1-wcs/utexas_access_by_role"
   }
 }

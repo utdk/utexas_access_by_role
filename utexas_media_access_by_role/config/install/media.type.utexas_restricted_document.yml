@@ -1,0 +1,13 @@
+langcode: en
+status: true
+dependencies: {  }
+id: utexas_restricted_document
+label: 'Restricted Document'
+description: 'Documents that can only be accessed by specified roles.'
+source: file
+queue_thumbnail_downloads: false
+new_revision: true
+source_configuration:
+  source_field: field_utexas_restricted_file
+field_map:
+  name: name

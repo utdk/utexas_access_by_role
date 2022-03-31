@@ -1,0 +1,30 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.media.utexas_restricted_image.field_utexas_restricted_image
+    - field.field.media.utexas_restricted_image.field_utexas_restricted_roles
+    - image.style.large
+    - media.type.utexas_restricted_image
+  module:
+    - image
+id: media.utexas_restricted_image.default
+targetEntityType: media
+bundle: utexas_restricted_image
+mode: default
+content:
+  field_utexas_restricted_image:
+    type: image
+    label: visually_hidden
+    settings:
+      image_link: ''
+      image_style: large
+    third_party_settings: {  }
+    weight: 0
+    region: content
+hidden:
+  created: true
+  field_utexas_restricted_roles: true
+  name: true
+  thumbnail: true
+  uid: true

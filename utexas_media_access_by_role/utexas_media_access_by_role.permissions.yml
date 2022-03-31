@@ -1,0 +1,3 @@
+bypass utexas media access by role:
+  title: 'Bypass Media Access by Role'
+  description: 'Roles with this permission will not be affected by media access role settings'

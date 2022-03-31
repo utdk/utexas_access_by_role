@@ -1,0 +1,26 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_form_mode.media.media_library
+    - field.field.media.utexas_restricted_document.field_utexas_restricted_file
+    - field.field.media.utexas_restricted_document.field_utexas_restricted_roles
+    - media.type.utexas_restricted_document
+id: media.utexas_restricted_document.media_library
+targetEntityType: media
+bundle: utexas_restricted_document
+mode: media_library
+content:
+  field_utexas_restricted_roles:
+    type: options_buttons
+    weight: 0
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  created: true
+  field_utexas_restricted_file: true
+  name: true
+  path: true
+  status: true
+  uid: true

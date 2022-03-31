@@ -1,0 +1,38 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.media.media_library
+    - field.field.media.utexas_restricted_document.field_utexas_restricted_file
+    - field.field.media.utexas_restricted_document.field_utexas_restricted_roles
+    - image.style.medium
+    - media.type.utexas_restricted_document
+  module:
+    - image
+id: media.utexas_restricted_document.media_library
+targetEntityType: media
+bundle: utexas_restricted_document
+mode: media_library
+content:
+  field_utexas_restricted_roles:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: false
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  thumbnail:
+    type: image
+    label: hidden
+    settings:
+      image_link: ''
+      image_style: medium
+    third_party_settings: {  }
+    weight: 0
+    region: content
+hidden:
+  created: true
+  field_utexas_restricted_file: true
+  name: true
+  uid: true
