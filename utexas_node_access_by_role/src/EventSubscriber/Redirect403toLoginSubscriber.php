@@ -99,7 +99,7 @@ class Redirect403toLoginSubscriber extends HttpExceptionSubscriberBase {
   /**
    * Redirects on 403 Access Denied kernel exceptions.
    *
-   * @param \Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent $event
+   * @param Symfony\Component\HttpKernel\Event\ExceptionEvent $event
    *   The Event to process.
    */
   public function on403(ExceptionEvent $event) {
@@ -145,7 +145,8 @@ class Redirect403toLoginSubscriber extends HttpExceptionSubscriberBase {
         if ($queryString = $request->getQueryString()) {
           $destination .= '?' . $queryString;
         }
-      } else {
+      }
+      else {
         $destination = $this->redirectDestination->get();
       }
 
@@ -173,4 +174,5 @@ class Redirect403toLoginSubscriber extends HttpExceptionSubscriberBase {
       $event->setResponse($response);
     }
   }
+
 }
