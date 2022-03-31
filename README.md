@@ -1,5 +1,5 @@
-# UTexas Node Access by Role
+# UTexas Access by Role
 
-This is a Drupal module to control access to individual nodes based on user roles.
+This is a Drupal module to control access to content based on user roles.
 
 Full documentation can be found at https://drupalkit.its.utexas.edu/docs/
