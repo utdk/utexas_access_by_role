@@ -157,7 +157,8 @@ class Redirect403toLoginSubscriber extends HttpExceptionSubscriberBase {
 
       // Allow to alter the url or options before to redirect.
       $redirectEvent = new RedirectEvent($redirectPath, $options);
-      $this->eventDispatcher->dispatch(RedirectEvent::EVENT_NAME, $redirectEvent);
+      // See Symfony 4.3 change in /drupal/issues/3055194.
+      $this->eventDispatcher->dispatch($redirectEvent, RedirectEvent::EVENT_NAME);
       $redirectPath = $redirectEvent->getUrl();
       $options = $redirectEvent->getOptions();
 
