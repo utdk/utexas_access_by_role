@@ -11,6 +11,7 @@
     "source": "https://github.austin.utexas.edu/eis1-wcs/utexas_access_by_role"
   },
   "conflict": {
-    "drupal/core": "<10.1"
+    "drupal/core": "<10.1",
+    "drupal/core-recommended": "<10.1"
   }
 }
