@@ -50,7 +50,7 @@ class MediaAccessHelper implements ContainerInjectionInterface {
   public function __construct(
     EntityTypeManagerInterface $entity_type_manager,
     AccountInterface $current_user,
-    ConfigFactoryInterface $config_factory
+    ConfigFactoryInterface $config_factory,
   ) {
     $this->entityTypeManager = $entity_type_manager;
     $this->currentUser = $current_user;

@@ -11,6 +11,7 @@
 function utexas_media_access_by_role_uninstall() {
   $storage_handler = \Drupal::entityTypeManager()->getStorage("media");
   $images = \Drupal::entityQuery('media')
+    ->checkAccess(FALSE)
     ->condition('bundle', 'utexas_restricted_image')
     ->execute();
 
@@ -20,8 +21,9 @@ function utexas_media_access_by_role_uninstall() {
     $media->save();
   }
   $documents = \Drupal::entityQuery('media')
-  ->condition('bundle', 'utexas_restricted_document')
-  ->execute();
+    ->checkAccess(FALSE)
+    ->condition('bundle', 'utexas_restricted_document')
+    ->execute();
   $medias = $storage_handler->loadMultiple($documents);
   foreach ($medias as $media) {
     $media->setUnpublished();

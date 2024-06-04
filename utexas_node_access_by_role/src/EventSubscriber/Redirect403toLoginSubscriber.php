@@ -10,9 +10,9 @@ use Drupal\Core\EventSubscriber\HttpExceptionSubscriberBase;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Path\PathMatcherInterface;
 use Drupal\Core\Routing\RedirectDestinationInterface;
-use Drupal\node\NodeInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
+use Drupal\node\NodeInterface;
 use Drupal\utexas_node_access_by_role\Event\RedirectEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
@@ -123,6 +123,10 @@ class Redirect403toLoginSubscriber extends HttpExceptionSubscriberBase {
       // This is not a node, so it's not applicable to this redirect.
       return;
     }
+    // Dependency injection is more complicated code than static calls
+    // and therefore has a negative Developer Experience (DX) for our team.
+    // We mark these PHPCS standards as ignored.
+    // phpcs:ignore
     $moduleHandler = \Drupal::service('module_handler');
     $redirectPath = '/user/login';
     if ($moduleHandler->moduleExists('simplesamlphp_auth')) {

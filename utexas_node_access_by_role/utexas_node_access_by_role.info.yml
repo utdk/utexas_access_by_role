@@ -2,4 +2,4 @@ name: UTexas Node Access by Role
 description: 'Control access to individual nodes based on user roles.'
 package: 'UTexas'
 type: module
-core_version_requirement: ^10.1
+core_version_requirement: ^10.1 || ^11

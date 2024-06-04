@@ -3,16 +3,16 @@
 namespace Drupal\utexas_node_access_by_role\Form;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\utexas_node_access_by_role\Service\NodeAccessHelper;
-use Drupal\Core\DependencyInjection\DependencySerializationTrait;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Alter the node form and node type forms.
@@ -73,6 +73,8 @@ class NodeFormAlterations implements ContainerInjectionInterface {
    *   The configuration object factory.
    * @param \Drupal\Core\Messenger\MessengerInterface $messenger
    *   The messenger service.
+   * @param \Drupal\utexas_node_access_by_role\Service\NodeAccessHelper $nodeAccessHelper
+   *   A helper service for enforcing node access.
    */
   public function __construct(
     TranslationInterface $translation,
@@ -80,7 +82,7 @@ class NodeFormAlterations implements ContainerInjectionInterface {
     AccountInterface $current_user,
     ConfigFactoryInterface $config_factory,
     MessengerInterface $messenger,
-    NodeAccessHelper $nodeAccessHelper
+    NodeAccessHelper $nodeAccessHelper,
   ) {
     $this->stringTranslation = $translation;
     $this->entityTypeManager = $entity_type_manager;
@@ -126,7 +128,7 @@ class NodeFormAlterations implements ContainerInjectionInterface {
       }
       if (!empty($allowed)) {
         $form['utexas_node_access_by_role_help'] = [
-          '#markup' => $this->t('<div class="messages messages--status">This page is currently only visible to the following roles: ' . implode(', ', $allowed) . '.</div>'),
+          '#markup' => $this->t('<div class="messages messages--status">This page is currently only visible to the following roles:' . implode(', ', $allowed) . '.</div>'),
           '#weight' => -999,
         ];
       }
@@ -154,9 +156,9 @@ class NodeFormAlterations implements ContainerInjectionInterface {
     }
     $form['utexas_node_access_by_role_roles']['widget']['#options'] = $this->nodeAccessHelper->getSelectableRoles();
     $form['utexas_node_access_by_role_roles']['#states'] = [
-      'invisible' => array(
-        ':input[name="utexas_node_access_by_role_enable[value]"]' => array('checked' => FALSE),
-      ),
+      'invisible' => [
+        ':input[name="utexas_node_access_by_role_enable[value]"]' => ['checked' => FALSE],
+      ],
     ];
     $form['#validate'][] = [$this, 'nodeFormValidate'];
     $form['actions']['submit']['#submit'][] = [$this, 'nodeFormSubmit'];
@@ -208,6 +210,9 @@ class NodeFormAlterations implements ContainerInjectionInterface {
     $config->save();
   }
 
+  /**
+   * Validation handler.
+   */
   public function nodeFormValidate(&$form, FormStateInterface $form_state) {
     $enabled = $form_state->getValue('utexas_node_access_by_role_enable');
     if ($enabled['value']) {
@@ -232,7 +237,7 @@ class NodeFormAlterations implements ContainerInjectionInterface {
         $allowed[] = $role->get('label');
       }
       if (!empty($allowed)) {
-        $this->messenger->addStatus($this->t('This page is currently only visible to the following roles: ' . implode(', ', $allowed) . '.'));
+        $this->messenger->addStatus($this->t('This page is currently only visible to the following roles:' . implode(', ', $allowed) . '.'));
       }
     }
   }
