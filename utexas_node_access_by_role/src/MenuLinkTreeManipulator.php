@@ -2,17 +2,9 @@
 
 namespace Drupal\utexas_node_access_by_role;
 
-use Drupal\Core\Access\AccessManagerInterface;
-use Drupal\Core\Config\ConfigManagerInterface;
-use Drupal\Core\Config\ImmutableConfig;
-use Drupal\Core\Entity\EntityRepositoryInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Menu\DefaultMenuLinkTreeManipulators;
 use Drupal\Core\Menu\MenuLinkInterface;
-use Drupal\Core\Access\AccessResult;
-use Drupal\Core\Session\AccountInterface;
-use Drupal\Core\Url;
-use Drupal\menu_link_content\Entity\MenuLinkContent;
 
 /**
  * Defines the access control handler for the menu item.
@@ -51,6 +43,10 @@ class MenuLinkTreeManipulator extends DefaultMenuLinkTreeManipulators {
     }
     if ($url->getRouteName() === 'entity.node.canonical') {
       $parameters = $url->getRouteParameters();
+      // Dependency injection is more complicated code than static calls
+      // and therefore has a negative Developer Experience (DX) for our team.
+      // We mark these PHPCS standards as ignored.
+      // phpcs:ignore
       $query = \Drupal::database()->select('node_field_data', 'n');
       $query->fields('n', ['nid']);
       $query->condition('n.nid', $parameters['node']);

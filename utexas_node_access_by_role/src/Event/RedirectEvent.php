@@ -77,4 +77,5 @@ class RedirectEvent extends Event {
   public function setOptions(array $options) {
     $this->options = $options;
   }
+
 }

@@ -2,6 +2,8 @@
 
 namespace Drupal\utexas_node_access_by_role;
 
+use Drupal\content_moderation\Entity\Handler\BlockContentModerationHandler;
+use Drupal\content_moderation\Entity\Handler\NodeModerationHandler;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
@@ -11,8 +13,6 @@ use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
-use Drupal\content_moderation\Entity\Handler\BlockContentModerationHandler;
-use Drupal\content_moderation\Entity\Handler\NodeModerationHandler;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -86,7 +86,8 @@ class EntityTypeInfo implements ContainerInjectionInterface {
     EntityTypeManagerInterface $entity_type_manager,
     EntityTypeBundleInfoInterface $bundle_info,
     AccountInterface $current_user,
-    EntityFieldManagerInterface $entity_field_manager) {
+    EntityFieldManagerInterface $entity_field_manager,
+  ) {
     $this->stringTranslation = $translation;
     $this->entityTypeManager = $entity_type_manager;
     $this->bundleInfo = $bundle_info;

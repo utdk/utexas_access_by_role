@@ -9,7 +9,7 @@ use Drupal\Core\Session\AccountInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Helper methods
+ * Helper methods.
  *
  * @internal
  */
@@ -36,7 +36,6 @@ class NodeAccessHelper implements ContainerInjectionInterface {
    */
   protected $currentUser;
 
-
   /**
    * EntityTypeInfo constructor.
    *
@@ -50,7 +49,7 @@ class NodeAccessHelper implements ContainerInjectionInterface {
   public function __construct(
     EntityTypeManagerInterface $entity_type_manager,
     AccountInterface $current_user,
-    ConfigFactoryInterface $config_factory
+    ConfigFactoryInterface $config_factory,
   ) {
     $this->entityTypeManager = $entity_type_manager;
     $this->currentUser = $current_user;
@@ -82,9 +81,9 @@ class NodeAccessHelper implements ContainerInjectionInterface {
     /** @var \Drupal\user\RoleInterface[] $roles */
     $roles = $role_storage->loadMultiple();
     $bypassing_roles = $this->getBypassingRoles();
-    // Don't make the 'anonymous' role available -- it's not a valid use case.
+    // Don't make the 'anonymous' role available: it's not a valid use case.
     unset($roles['anonymous']);
-    // Don't make the 'authenticated' role available -- it's not a valid use case.
+    // Don't make the 'authenticated' role available: it's not a valid use case.
     unset($roles['authenticated']);
     foreach ($roles as $key => $role) {
       if (!in_array($key, array_keys($bypassing_roles))) {
