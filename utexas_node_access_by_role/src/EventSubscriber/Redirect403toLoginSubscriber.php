@@ -10,6 +10,7 @@ use Drupal\Core\EventSubscriber\HttpExceptionSubscriberBase;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Path\PathMatcherInterface;
 use Drupal\Core\Routing\RedirectDestinationInterface;
+use Drupal\Core\Routing\TrustedRedirectResponse;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
@@ -132,6 +133,11 @@ class Redirect403toLoginSubscriber extends HttpExceptionSubscriberBase {
     if ($moduleHandler->moduleExists('simplesamlphp_auth')) {
       $redirectPath = '/saml_login';
     }
+    $custom_redirect = $this->configFactory->get('utexas_node_access_by_role.settings')->get('redirect_path');
+    // If set in site configuration, override the default redirect behavior.
+    if (isset($custom_redirect) && $custom_redirect != '') {
+      $redirectPath = $custom_redirect;
+    }
     if (!empty($redirectPath)) {
       // Determine if the redirect path is external.
       $externalRedirect = UrlHelper::isExternal($redirectPath);
@@ -167,9 +173,15 @@ class Redirect403toLoginSubscriber extends HttpExceptionSubscriberBase {
       $options = $redirectEvent->getOptions();
 
       // Perform the redirection.
-      $url = Url::fromUserInput($redirectPath, $options)->toString();
       $code = '301';
-      $response = new CacheableRedirectResponse($url, $code);
+      if ($externalRedirect) {
+        $url = Url::fromUri($redirectPath, $options)->toString();
+        $response = new TrustedRedirectResponse($url, $code);
+      }
+      else {
+        $url = Url::fromUserInput($redirectPath, $options)->toString();
+        $response = new CacheableRedirectResponse($url, $code);
+      }
 
       // Add caching dependencies so the cache of the redirection will be
       // updated when necessary.

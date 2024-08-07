@@ -5,3 +5,9 @@ utexas_node_access_by_role.node_type.*:
     enabled:
       type: boolean
       label: 'Enabled'
+utexas_node_access_by_role.settings:
+  type: config_entity
+  mapping:
+    redirect_path:
+      type: string
+      label: 'Redirect path'

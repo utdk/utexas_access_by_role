@@ -1,0 +1,5 @@
+utexas_node_access_by_role.configuration:
+  title: 'Access by Role'
+  description: 'Configure settings access based on role'
+  route_name: utexas_node_access_by_role.configuration
+  parent: system.admin_config_content
