@@ -12,6 +12,7 @@ function utexas_node_access_by_role_install() {
   // Set module weight to after Utexas profile,
   // which also alters menu links.
   module_set_weight('utexas_node_access_by_role', 1001);
+  node_access_rebuild();
 }
 
 /**
