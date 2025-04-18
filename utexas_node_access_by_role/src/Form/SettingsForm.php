@@ -32,7 +32,7 @@ class SettingsForm extends ConfigFormBase {
     $redirect_path = $this->config('utexas_node_access_by_role.settings')->get('redirect_path');
     $form['redirect_path'] = [
       '#title' => 'Redirect anonymous users to',
-      '#description' => $this->t('If an anonymous user tries to access a page they cannot, redirect them to the path specified below. Include a leading slash (i.e., <code>/user/login</code>). Leave this field blank to use the default behavior: for sites not using Enterprise Authentication, redirect to <code>/user</code>; for sites using Enterprise Authentication, redirect to <code>/saml_login</code>.'),
+      '#description' => $this->t('If an anonymous user tries to access a page they cannot, redirect them to the path specified below. Include a leading slash (i.e., <code>/user/login</code>). Leave this field blank to use the default behavior: for sites not using Enterprise Authentication, redirect to <code>/user</code>; for sites using Enterprise Authentication, redirect to <code>/saml/login</code>.'),
       '#type' => 'textfield',
       '#default_value' => $redirect_path ?? '',
       '#size' => '20',
