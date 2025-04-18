@@ -133,6 +133,9 @@ class Redirect403toLoginSubscriber extends HttpExceptionSubscriberBase {
     if ($moduleHandler->moduleExists('simplesamlphp_auth')) {
       $redirectPath = '/saml_login';
     }
+    if ($moduleHandler->moduleExists('samlauth')) {
+      $redirectPath = '/saml/login';
+    }
     $custom_redirect = $this->configFactory->get('utexas_node_access_by_role.settings')->get('redirect_path');
     // If set in site configuration, override the default redirect behavior.
     if (isset($custom_redirect) && $custom_redirect != '') {
