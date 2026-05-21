@@ -1,0 +1,103 @@
+<?php
+
+namespace Drupal\utexas_media_access_by_role\Hook;
+
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Hook\Attribute\Hook;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\file\FileInterface;
+
+/**
+ * Hook implementations.
+ */
+class Hooks {
+
+  /**
+   * Implements hook_media_access().
+   */
+  #[Hook('media_access')]
+  public function mediaAccess($entity, $op, AccountInterface $account) {
+    // Only apply to the entities defined by this module.
+    $bundles = ['utexas_restricted_image', 'utexas_restricted_document'];
+    if (!in_array($entity->bundle(), $bundles)) {
+      return AccessResult::neutral();
+    }
+    switch ($op) {
+      case 'view':
+        // For users with any role that has 'bypass utexas media access by role'
+        // this hook should stay "neutral".
+        if ($account->hasPermission('bypass utexas media access by role')) {
+          return AccessResult::neutral();
+        }
+        // Check if the media has role-based access restrictions.
+        if ($entity->hasField('field_utexas_restricted_roles') && !$entity->get('field_utexas_restricted_roles')->isEmpty()) {
+          $current_user_roles = $account->getRoles();
+          foreach (array_values($entity->get('field_utexas_restricted_roles')->getValue()) as $value) {
+            // If the user has any role that is allowed to view the media,
+            // stay neutral.
+            if (in_array($value['target_id'], $current_user_roles)) {
+              return AccessResult::neutral();
+            }
+          }
+        }
+        // The user does not have a role that is allowed access to this media.
+        // Fail *closed*.
+        return AccessResult::forbidden();
+    }
+    // Stay neutral on all other scenarios (e.g., edit or delete access).
+    return AccessResult::neutral();
+  }
+
+  /**
+   * Implements hook_field_widget_form_alter().
+   */
+  #[Hook('field_widget_form_alter')]
+  public function fieldWidgetFormAlter(&$element, FormStateInterface $form_state, $context) {
+    // Add a css class to widget form elements for all fields of type mytype.
+    $field_definition = $context['items']->getFieldDefinition();
+    $name = $field_definition->getName();
+    if ($name !== 'field_utexas_restricted_roles') {
+      return;
+    }
+    $selectable_roles = \Drupal::service('utexas_media_access_by_role.helper')->getSelectableRoles();
+    $element['#options'] = $selectable_roles;
+  }
+
+  /**
+   * Implements hook_entity_delete().
+   */
+  #[Hook('entity_delete')]
+  public function entityDelete(EntityInterface $entity) {
+    $bundles = ['utexas_restricted_image', 'utexas_restricted_document'];
+    if (!in_array($entity->bundle(), $bundles)) {
+      return;
+    }
+    $media = $entity;
+    $media_bundle = \Drupal::entityTypeManager()->getStorage('media_type')->load($media->bundle());
+    $source_field = $media_bundle->getSource()->getSourceFieldDefinition($media_bundle)->getName();
+    $media_attributes = $media->get($source_field)->getValue();
+    $file = \Drupal::entityTypeManager()->getStorage('file')->load($media_attributes[0]['target_id']);
+    if ($file instanceof FileInterface) {
+      \Drupal::logger('utexas_media_access_by_role')->notice('Deleted file associated with restricted media.');
+      $file->delete();
+    }
+  }
+
+  /**
+   * Implements hook_preprocess_field().
+   */
+  #[Hook('preprocess_field')]
+  public function preprocessField(&$variables) {
+    if (!empty($variables['field_name'])) {
+      switch ($variables['field_name']) {
+        case 'field_utexas_restricted_roles':
+          $variables['title_attributes']['class'][] = 'ut-cta-link--lock';
+          $variables['label'] = 'ROLE RESTRICTIONS:';
+          break;
+      }
+    }
+  }
+
+}
